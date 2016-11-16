@@ -113,7 +113,7 @@ public class Selector : MonoBehaviour {
 
     //指定された座標にPieceを配置し、反転可能なPieceに反転命令を送っていく
     //xとyは座標、atTeamは置くPieceが白か黒かを指定
-    public void PutPiece(int x, int y, int atTeam) {
+    void PutPiece(int x, int y, int atTeam) {
         GameObject a = GameObject.Instantiate(Piece) as GameObject;//インスタンス化
         a.GetComponent<Piece_move_controller>().x = x;
         a.GetComponent<Piece_move_controller>().y = y;
@@ -148,7 +148,7 @@ public class Selector : MonoBehaviour {
     }
 
     //Pieceを置けるかどうかの確認
-    public bool Verification(int x, int y) {
+    bool Verification(int x, int y) {
         bool result = false;
         try {
             //上の確認
@@ -282,14 +282,14 @@ public class Selector : MonoBehaviour {
                 }
             }
         } catch (System.IndexOutOfRangeException) {
-            Debug.LogError("1マス目範囲外検出");
+            //Debug.LogError("1マス目範囲外検出");
         }
         returnFase:
         return result;
     }
 
     //Pieceの色反転
-    private void Reversal(int x, int y) {
+    void Reversal(int x, int y) {
         int found;
         //上の反転できるところまで探す
         found = 0;
@@ -311,7 +311,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + (x.ToString()) + ((y + k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("上反転物未検出" + " " + x + " " + (y + k));
+                    //Debug.LogError("上反転物未検出" + " " + x + " " + (y + k));
                 }
             }
         }
@@ -336,7 +336,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + ((x + k).ToString()) + ((y + k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("右上反転物未検出" + " " + (x + k) + " " + (y + k));
+                    //Debug.LogError("右上反転物未検出" + " " + (x + k) + " " + (y + k));
                 }
             }
         }
@@ -361,7 +361,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + ((x + k).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("右反転物未検出" + " " + (x + k) + " " + y);
+                    //Debug.LogError("右反転物未検出" + " " + (x + k) + " " + y);
                 }
             }
         }
@@ -386,7 +386,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + ((x + k).ToString()) + ((y - k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("右下反転物未検出" + " " + (x + k) + " " + (y - k));
+                    //Debug.LogError("右下反転物未検出" + " " + (x + k) + " " + (y - k));
                 }
             }
         }
@@ -411,7 +411,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + (x.ToString()) + ((y - k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("下反転物未検出" + " " + x + " " + (y - k));
+                    //Debug.LogError("下反転物未検出" + " " + x + " " + (y - k));
                 }
             }
         }
@@ -436,7 +436,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + ((x - k).ToString()) + ((y - k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("左下反転物未検出" + " " + (x - k) + " " + (y - k));
+                    //Debug.LogError("左下反転物未検出" + " " + (x - k) + " " + (y - k));
                 }
             }
         }
@@ -461,7 +461,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + ((x - k).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("左反転物未検出" + " " + (x - k) + " " + y);
+                    //Debug.LogError("左反転物未検出" + " " + (x - k) + " " + y);
                 }
             }
         }
@@ -486,7 +486,7 @@ public class Selector : MonoBehaviour {
                 try {
                     GameObject.Find("_" + ((x - k).ToString()) + ((y + k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
                 } catch (System.NullReferenceException) {
-                    Debug.LogError("左上反転物未検出" + " " + (x - k) + " " + (y + k));
+                    //Debug.LogError("左上反転物未検出" + " " + (x - k) + " " + (y + k));
                 }
             }
         }

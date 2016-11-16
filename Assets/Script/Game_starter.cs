@@ -18,6 +18,8 @@ public class Game_starter : MonoBehaviour {
     //リセットボタンを押された時
     public void OnClick() {
 
+        GameObject.Find("GameStart").SetActive(false);  //ボタンの無効化
+
         Game_Master.GetComponent<Turn_Controller>().turn = 1;   //ターンの初期化
         Game_Master.GetComponent<Turn_Controller>().now_team = 'w';
 
