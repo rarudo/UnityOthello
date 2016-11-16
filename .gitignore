@@ -33,14 +33,7 @@ sysinfo.txt
 #for rider
 .idea/*
 _ReSharper.Caches*
-*.csproj
-*.meta
-Library/*
-ProjectSettings/*
-obj/*
-Temp/*
-*.sln
-*.suo
+
 
 #for consulo
 /.consulo/workspace.xml
