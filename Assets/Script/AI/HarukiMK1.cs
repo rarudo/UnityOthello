@@ -55,7 +55,7 @@ public class HarukiMK1 : MonoBehaviour
         List<evaluationStruct> evaluationList =new List<evaluationStruct>();
         yield return WaitTurn();
         Debug.Log("俺のた～ん");
-        //1秒末
+        //早く置きすぎると面白くないので１秒待つ
         yield return new WaitForSeconds(1f);
         //一番置ける場所の中で、一番いい点数を取得する
         int bestEvaluation = -100;
@@ -80,6 +80,7 @@ public class HarukiMK1 : MonoBehaviour
 
         foreach (evaluationStruct es in evaluationList)
         {
+            //評価が一番高いもののx,y座標から置く
             if (es.Evaluation == bestEvaluation)
             {
                 _selector.PutPieceForAi(es.X +1,es.Y+1);
