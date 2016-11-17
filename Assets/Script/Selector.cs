@@ -25,6 +25,9 @@ public class Selector : MonoBehaviour {
     private RaycastHit hit;
     private Ray ray;
 
+    public bool[] verification_result; //置けるかどうか判定用 コルーチンで使用する
+    private bool[] verification_end; //置けるかどうか判定用 コルーチンの判定が終了したか判定用
+
     private int possible_area;  //白と黒チームの両方の置ける場所を1 それ以外は0
 
     void Start() {
@@ -122,8 +125,10 @@ public class Selector : MonoBehaviour {
 
         if (attack_team == 0) {
             game_master.GetComponent<Tile_data>().data[x, y] = 0;
+            Debug.Log(x + "," + y + " " + 0);
         } else if (attack_team == 1) {
             game_master.GetComponent<Tile_data>().data[x, y] = 1;
+            Debug.Log(x + "," + y + " " + 1);
         }
 
         GameObject.Find((y.ToString()) + (x.ToString())).tag = "Tile_disable";
@@ -147,348 +152,374 @@ public class Selector : MonoBehaviour {
 
     }
 
-    //Pieceを置けるかどうかの確認
+    //指定されたx,y座標にPieceが置けるかどうかを調べる
     bool Verification(int x, int y) {
         bool result = false;
-        try {
-            //上の確認
-            if (game_master.GetComponent<Tile_data>().data[x, y + 1] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x, y + i] == attack_team) {
-                            //Debug.Log("上");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x, y + i] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-            //右上の確認
-            if (game_master.GetComponent<Tile_data>().data[x + 1, y + 1] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == attack_team) {
-                            //Debug.Log((x + i) + " " + (y + i) + " あった" + game_master.GetComponent<Tile_data>().data[x + i, y + i]);
-                            //Debug.Log("右上");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-            //右の確認
-            if (game_master.GetComponent<Tile_data>().data[x + 1, y] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x + i, y] == attack_team) {
-                            //Debug.Log("右");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x + i, y] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-            //右下確認
-            if (game_master.GetComponent<Tile_data>().data[x + 1, y - 1] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == attack_team) {
-                            //Debug.Log("右下");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-            //下の確認
-            if (game_master.GetComponent<Tile_data>().data[x, y - 1] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x, y - i] == attack_team) {
-                            //Debug.Log("下");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x, y - i] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-            //左下確認
-            if (game_master.GetComponent<Tile_data>().data[x - 1, y - 1] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == attack_team) {
-                            //Debug.Log("左下");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-            //左確認
-            if (game_master.GetComponent<Tile_data>().data[x - 1, y] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x - i, y] == attack_team) {
-                            //Debug.Log("左");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x - i, y] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-            //左上確認
-            if (game_master.GetComponent<Tile_data>().data[x - 1, y + 1] == enemy_team) {
-                for (int i = 2; i < 9; i++) {
-                    try {
-                        if (game_master.GetComponent<Tile_data>().data[x - i, y + i] == attack_team) {
-                            //Debug.Log((x - i) + " " + (y + i) + " あった" + game_master.GetComponent<Tile_data>().data[x - i, y + i]);
-                            //Debug.Log("左上");
-                            result = true;
-                            goto returnFase;
-                        } else if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == -1) {
-                            break;
-                        }
-                    } catch (System.IndexOutOfRangeException) {
-                        //Debug.LogError("範囲外検出");
-                    }
-                }
-            }
-        } catch (System.IndexOutOfRangeException) {
-            //Debug.LogError("1マス目範囲外検出");
+        if (game_master.GetComponent<Tile_data>().data[x, y] != -1) {
+            goto VerificationEND;   //もうすでに盤面に石が置かれているので判定強制終了
         }
-        returnFase:
+        verification_result = new bool[8] { false, false, false, false, false, false, false, false };    //初期化　のちどれかがtrueになったら配置可能判定がでる
+        verification_end = new bool[8] { false, false, false, false, false, false, false, false };  //初期化　これが全てtrueにならないと次の判断フェーズに行かない
+
+        //判定用コルーチンの一斉開始
+        StartCoroutine(Up_find(x, y));                  //0
+        StartCoroutine(UpRight_find(x, y));         //1
+        StartCoroutine(Right_find(x, y));               //2
+        StartCoroutine(DownRight_find(x, y));       //3
+        StartCoroutine(Down_find(x, y));             //4
+        StartCoroutine(DownLeft_find(x, y));        //5
+        StartCoroutine(Left_find(x, y));                //6
+        StartCoroutine(UpLeft_find(x, y));              //7
+
+        //判定が出るのを待つ
+        while (verification_end[0] == true &&
+                verification_end[1] == true &&
+                verification_end[2] == true &&
+                verification_end[3] == true &&
+                verification_end[4] == true &&
+                verification_end[5] == true &&
+                verification_end[6] == true &&
+                verification_end[7] == true) {
+            //全ての判定が終了しないと次の判定に行かない
+        }
+
+        //判定が出てきた後どれか１方向でもtrueになっていれば配置可能判定を出す
+        if (verification_result[0] == true ||
+            verification_result[1] == true ||
+            verification_result[2] == true ||
+            verification_result[3] == true ||
+            verification_result[4] == true ||
+            verification_result[5] == true ||
+            verification_result[6] == true ||
+            verification_result[7] == true) {
+            result = true;
+        }
+
+        VerificationEND:    //置こうとした場所がもう石がすでに置かれていた時に飛んでくる
         return result;
     }
 
-    //Pieceの色反転
+    IEnumerator Up_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x, y + 1] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[0] = true;  //置ける判定をして終了
+                        goto UP_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto UP_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        UP_FIND_END:
+        yield return null;
+    }
+
+    IEnumerator UpRight_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x + 1, y + 1] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[1] = true;  //置ける判定をして終了
+                        goto UPRIGHT_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x + i, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto UPRIGHT_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        UPRIGHT_FIND_END:
+        yield return null;
+    }
+
+    IEnumerator Right_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x + 1, y] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x + i, y] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[2] = true;  //置ける判定をして終了
+                        goto RIGHT_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x + i, y] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x + i, y] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto RIGHT_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        RIGHT_FIND_END:
+        yield return null;
+    }
+
+    IEnumerator DownRight_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x + 1, y - 1] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[3] = true;  //置ける判定をして終了
+                        goto DOWNRIGHT_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x + i, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto DOWNRIGHT_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        DOWNRIGHT_FIND_END:
+        yield return null;
+    }
+
+    IEnumerator Down_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x, y - 1] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[4] = true;  //置ける判定をして終了
+                        goto DOWN_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto DOWN_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        DOWN_FIND_END:
+        yield return null;
+    }
+
+    IEnumerator DownLeft_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x - 1, y - 1] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[5] = true;  //置ける判定をして終了
+                        goto DOWNREFT_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x - i, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto DOWNREFT_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        DOWNREFT_FIND_END:
+        yield return null;
+    }
+
+    IEnumerator Left_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x - 1, y] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x - i, y] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[6] = true;  //置ける判定をして終了
+                        goto LEFT_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x - i, y] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x - i, y] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto LEFT_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        LEFT_FIND_END:
+        yield return null;
+    }
+
+    IEnumerator UpLeft_find(int x, int y) {
+        if (game_master.GetComponent<Tile_data>().data[x - 1, y + 1] == enemy_team) {    //1マス目が敵石であった時
+            for (int i = 2; i < 9; i++) {
+                try {
+                    if (game_master.GetComponent<Tile_data>().data[x - i, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                        verification_result[7] = true;  //置ける判定をして終了
+                        goto UPLEFT_FIND_END;
+                    } else if (game_master.GetComponent<Tile_data>().data[x - i, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
+
+                    } else if ((game_master.GetComponent<Tile_data>().data[x - i, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                        goto UPLEFT_FIND_END;
+                    }
+                } catch (System.IndexOutOfRangeException) {
+
+                }
+            }
+        }
+        UPLEFT_FIND_END:
+        yield return null;
+    }
+
     void Reversal(int x, int y) {
-        int found;
-        //上の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x, y + 1] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x, y + j] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    //Debug.LogError("上範囲外検出");
-                }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x, y + k] = attack_team;
-                try {
-                    GameObject.Find("_" + (x.ToString()) + ((y + k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("上反転物未検出" + " " + x + " " + (y + k));
-                }
-            }
-        }
+        if (verification_result[0] == true)
+            StartCoroutine(Up_reversal(x, y));
+        if (verification_result[1] == true)
+            StartCoroutine(UpRight_reversal(x, y));
+        if (verification_result[2] == true)
+            StartCoroutine(Right_reversal(x, y));
+        if (verification_result[3] == true)
+            StartCoroutine(DownRight_reversal(x, y));
+        if (verification_result[4] == true)
+            StartCoroutine(Down_reversal(x, y));
+        if (verification_result[5] == true)
+            StartCoroutine(DownLeft_reversal(x, y));
+        if (verification_result[6] == true)
+            StartCoroutine(Left_reversal(x, y));
+        if (verification_result[7] == true)
+            StartCoroutine(UpLeft_reversal(x, y));
+    }
 
-        //右上の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x + 1, y + 1] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x + j, y + j] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    //Debug.LogError("右上範囲外検出");
+    //反転用コルーチン
+    IEnumerator Up_reversal(int x, int y) {
+        for(int i = 1; i<9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x, y + i] == enemy_team) {
+                    GameObject.Find("_" + (x.ToString()) + ((y + i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x, y + i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x, y + i] != enemy_team) {
+                    goto UP_REVERSAL_END;
                 }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x + k, y + k] = attack_team;
-                try {
-                    GameObject.Find("_" + ((x + k).ToString()) + ((y + k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("右上反転物未検出" + " " + (x + k) + " " + (y + k));
-                }
-            }
-        }
+            } catch (System.IndexOutOfRangeException) {
 
-        //右の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x + 1, y] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x + j, y] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    ;//Debug.LogError("右範囲外検出");
-                }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x + k, y] = attack_team;
-                try {
-                    GameObject.Find("_" + ((x + k).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("右反転物未検出" + " " + (x + k) + " " + y);
-                }
             }
         }
+        UP_REVERSAL_END:
+        yield return null;
+    }
 
-        //右下の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x + 1, y - 1] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x + j, y - j] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    //Debug.LogError("右下範囲外検出");
+    IEnumerator UpRight_reversal(int x, int y) {
+        for (int i = 1; i < 9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == enemy_team) {
+                    GameObject.Find("_" + ((x + i).ToString()) + ((y + i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x + i, y + i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x + i, y + i] != enemy_team) {
+                    goto UPRIGHT_REVERSAL_END;
                 }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x + k, y - k] = attack_team;
-                try {
-                    GameObject.Find("_" + ((x + k).ToString()) + ((y - k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("右下反転物未検出" + " " + (x + k) + " " + (y - k));
-                }
-            }
-        }
+            } catch (System.IndexOutOfRangeException) {
 
-        //下の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x, y - 1] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x, y - j] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    //Debug.LogError("下範囲外検出");
-                }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x, y - k] = attack_team;
-                try {
-                    GameObject.Find("_" + (x.ToString()) + ((y - k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("下反転物未検出" + " " + x + " " + (y - k));
-                }
             }
         }
+        UPRIGHT_REVERSAL_END:
+        yield return null;
+    }
 
-        //左下の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x - 1, y - 1] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x - j, y - j] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    //Debug.LogError("左下範囲外検出");
+    IEnumerator Right_reversal(int x, int y) {
+        for (int i = 1; i < 9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x + i, y] == enemy_team) {
+                    GameObject.Find("_" + ((x + i).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x + i, y] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x + i, y] != enemy_team) {
+                    goto RIGHT_REVERSAL_END;
                 }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x - k, y - k] = attack_team;
-                try {
-                    GameObject.Find("_" + ((x - k).ToString()) + ((y - k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("左下反転物未検出" + " " + (x - k) + " " + (y - k));
-                }
-            }
-        }
+            } catch (System.IndexOutOfRangeException) {
 
-        //左の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x - 1, y] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x - j, y] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    //Debug.LogError("左範囲外検出");
-                }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x - k, y] = attack_team;
-                try {
-                    GameObject.Find("_" + ((x - k).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("左反転物未検出" + " " + (x - k) + " " + y);
-                }
             }
         }
+        RIGHT_REVERSAL_END:
+        yield return null;
+    }
 
-        //左上の反転できるところまで探す
-        found = 0;
-        if (game_master.GetComponent<Tile_data>().data[x - 1, y + 1] == enemy_team) {
-            for (int j = 1; j < 9; j++) {
-                try {
-                    if (game_master.GetComponent<Tile_data>().data[x - j, y + j] == attack_team) {
-                        found = j + 1;
-                        break;
-                    }
-                } catch (System.IndexOutOfRangeException) {
-                    //Debug.LogError("左上範囲外検出");
+    IEnumerator DownRight_reversal(int x, int y) {
+        for (int i = 1; i < 9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == enemy_team) {
+                    GameObject.Find("_" + ((x + i).ToString()) + ((y - i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x + i, y - i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x + i, y - i] != enemy_team) {
+                    goto DOWNRIGHT_REVERSAL_END;
                 }
-            }
-            //反転作業施行
-            for (int k = 1; k < found; k++) {
-                //Tile_dataにデータを格納
-                game_master.GetComponent<Tile_data>().data[x - k, y + k] = attack_team;
-                try {
-                    GameObject.Find("_" + ((x - k).ToString()) + ((y + k).ToString())).GetComponent<Piece_move_controller>().team = attack_team;
-                } catch (System.NullReferenceException) {
-                    //Debug.LogError("左上反転物未検出" + " " + (x - k) + " " + (y + k));
-                }
+            } catch (System.IndexOutOfRangeException) {
+
             }
         }
+        DOWNRIGHT_REVERSAL_END:
+        yield return null;
+    }
+
+    IEnumerator Down_reversal(int x, int y) {
+        for (int i = 1; i < 9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x, y - i] == enemy_team) {
+                    GameObject.Find("_" + (x.ToString()) + ((y - i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x, y - i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x, y - i] != enemy_team) {
+                    goto DOWN_REVERSAL_END;
+                }
+            } catch (System.IndexOutOfRangeException) {
+
+            }
+        }
+        DOWN_REVERSAL_END:
+        yield return null;
+    }
+
+    IEnumerator DownLeft_reversal(int x, int y) {
+        for (int i = 1; i < 9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == enemy_team) {
+                    GameObject.Find("_" + ((x - i).ToString()) + ((y - i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x - i, y - i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x - i, y - i] != enemy_team) {
+                    goto DOWNLEFT_REVERSAL_END;
+                }
+            } catch (System.IndexOutOfRangeException) {
+
+            }
+        }
+        DOWNLEFT_REVERSAL_END:
+        yield return null;
+    }
+
+    IEnumerator Left_reversal(int x, int y) {
+        for (int i = 1; i < 9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x - i, y] == enemy_team) {
+                    GameObject.Find("_" + ((x - i).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x - i, y] = attack_team; //dataも更新
+                }else if(game_master.GetComponent<Tile_data>().data[x - i, y] != enemy_team) {
+                    goto LEFT_REVERSAL_END;
+                }
+            } catch (System.IndexOutOfRangeException) {
+
+            }
+        }
+        LEFT_REVERSAL_END:
+        yield return null;
+    }
+
+    IEnumerator UpLeft_reversal(int x, int y) {
+        for (int i = 1; i < 9; i++) {
+            try {
+                if (game_master.GetComponent<Tile_data>().data[x - i, y + i] == enemy_team) {
+                    GameObject.Find("_" + ((x - i).ToString()) + ((y + i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
+                    game_master.GetComponent<Tile_data>().data[x - i, y + i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x - i, y + i] != enemy_team) {
+                    goto UPLEFT_REVERSAL_END;
+                }
+            } catch (System.IndexOutOfRangeException) {
+
+            }
+        }
+        UPLEFT_REVERSAL_END:
+        yield return null;
     }
 }

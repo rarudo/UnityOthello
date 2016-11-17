@@ -23,8 +23,8 @@ public class Tile_data : MonoBehaviour {
 
     public void OnClick() {
         //Debugger.Array2D(data);
-        Debug.Log("x" + 4 + " y" + 4 + " " + data[4, 4]);
-        Debug.Log("x" + 4 + " y" + 3 + " " + data[4, 3]);
-        Debug.Log("x" + 5 + " y" + 4 + " " + data[5, 4]);
+        Debug.Log("x" + 4 + " y" + 4 + " " + data[5, 3]);
+        Debug.Log("x" + 4 + " y" + 3 + " " + data[4, 4]);
+        Debug.Log("x" + 5 + " y" + 4 + " " + data[3, 5]);
     }
 }

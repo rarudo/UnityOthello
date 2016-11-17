@@ -11,6 +11,7 @@ public class Ai : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        //評価用の各マス目の重さ付け
         weighting = new int[10, 10] { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                                     {0, 30, -12, 0, -1, -1, 0, -12, 30, 0},
                                                     {0, -12, -15, -3, -3, -3, -3, -15, 12, 0},
@@ -21,11 +22,6 @@ public class Ai : MonoBehaviour {
                                                     {0, -12, -15, -3, -3, -3, -3, -15, 12, 0},
                                                     {0, 30, -12, 0, -1, -1, 0, -12, 30, 0},
                                                     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
 	}
 
     //評価を開始する

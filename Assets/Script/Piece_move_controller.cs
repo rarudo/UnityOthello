@@ -14,8 +14,8 @@ public class Piece_move_controller : MonoBehaviour {
 
     public int team;   //現在どちらのチームの所有か 0:黒 1:白
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         StartCoroutine("Lisner");
 	}
 

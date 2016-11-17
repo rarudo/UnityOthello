@@ -17,6 +17,12 @@ public class Turn_Controller : MonoBehaviour {
     public int null_counter;   //これが0になったらゲームが終了され、集計に入る
     public int show_null_counter;   //for Debug
 
+    public GameObject win_b;
+    public GameObject win_w;
+    public GameObject result;
+    public Text result_text;
+    public GameObject restart_button;
+
     void Start() {
         StartCoroutine("Lisner");
         StartCoroutine("End_Lisner");
@@ -122,14 +128,51 @@ public class Turn_Controller : MonoBehaviour {
 
     //集計用
     IEnumerator Aggregate() {
-        Debug.Log("集計したお");
+        //Debug.Log("集計したお");
+        //集計用
+        int b_result = 0;
+        int w_result = 0;
+
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if(game_master.GetComponent<Tile_data>().data[i, j] == 0) {
+                    b_result++;
+                }
+                if (game_master.GetComponent<Tile_data>().data[i, j] == 1) {
+                    w_result++;
+                }
+            }
+        }
+
+        string text = "[result] Black: " + b_result + " White: " + w_result;
+        Debug.Log(text);
+        result_text.text = text;
+        result.SetActive(true);
+
+        if (b_result > w_result) {
+            win_b.SetActive(true);
+        } else if(b_result < w_result) {
+            win_w.SetActive(true);
+        } else {
+            Debug.Log("引き分け");
+        }
+
+        restart_button.SetActive(true); //リスタートボタンの有効化
+
         yield return 0;
     }
 
     IEnumerator Lisner() {
         while (true) {
             show_turn.text = "Turn:" + turn.ToString();
-            show_team.text = "Team:" + now_team;
+            switch (now_team) {
+                case 'b':
+                    show_team.text = "Turn: Black";
+                    break;
+                case 'w':
+                    show_team.text = "Turn: While";
+                    break;
+            }
             yield return new WaitForSeconds(0.001f);
         }
     }
