@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.44692504, g: 0.4967869, b: 0.57508504, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -4383,6 +4383,7 @@ GameObject:
   - 114: {fileID: 1537646269}
   - 114: {fileID: 1537646270}
   - 114: {fileID: 1537646271}
+  - 114: {fileID: 1537646272}
   m_Layer: 0
   m_Name: GameMaster
   m_TagString: Untagged
@@ -4421,6 +4422,11 @@ MonoBehaviour:
   show_team: {fileID: 1701199791}
   null_counter: 0
   show_null_counter: 0
+  win_b: {fileID: 0}
+  win_w: {fileID: 0}
+  result: {fileID: 0}
+  result_text: {fileID: 0}
+  restart_button: {fileID: 0}
 --- !u!114 &1537646270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4454,6 +4460,19 @@ MonoBehaviour:
   possible_color: {r: 1, g: 0.22794116, b: 0.22794116, a: 0}
   posX: 0
   posY: 0
+  verification_result: 
+--- !u!114 &1537646272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1537646267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e3e28f700367d84ca9685912148338e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MyTeam: 0
 --- !u!1 &1566155893
 GameObject:
   m_ObjectHideFlags: 0
