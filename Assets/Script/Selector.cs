@@ -1,8 +1,7 @@
-﻿//クリックを読み込み　選択された場所が置けるかどうかを判断
+﻿﻿//クリックを読み込み　選択された場所が置けるかどうかを判断
 
 using UnityEngine;
 using System.Collections;
-using UnityEngine.WSA;
 
 public class Selector : MonoBehaviour {
 
@@ -31,15 +30,7 @@ public class Selector : MonoBehaviour {
 
     private int possible_area;  //白と黒チームの両方の置ける場所を1 それ以外は0
 
-    //フィールドで保持しておく
-    private Tile_data _tileData;
-    private Turn_Controller _turnController;
-
-    void Start()
-    {
-        //最初にインスタンス化する
-        _tileData = GetComponent<Tile_data>();
-        _turnController = GetComponent<Turn_Controller>();
+    void Start() {
         StartCoroutine("Team_Lisner");
         StartCoroutine("Click_Lisner");
         StartCoroutine("Enemy_Lisner");
@@ -91,7 +82,7 @@ public class Selector : MonoBehaviour {
 
     IEnumerator Team_Lisner() {
         while (true) {
-            switch (_turnController.now_team) {
+            switch (game_master.GetComponent<Turn_Controller>().now_team) {
                 case 'b':
                     attack_team = 0;
                     break;
@@ -132,10 +123,6 @@ public class Selector : MonoBehaviour {
             yield return new WaitForSeconds(0.001f);
         }
     }
-
-    //指定された座標にPieceを配置し、反転可能なPieceに反転命令を送っていく
-    //xとyは座標、atTeamは置くPieceが白か黒かを指定
-    //事前にVerificationメソッドでおける反対が出てること
     public void PutPieceForAi(int x, int y)
     {
         //verificationを呼んでフラグを立てる
@@ -143,7 +130,10 @@ public class Selector : MonoBehaviour {
         PutPiece(x,y,attack_team);
     }
 
-    public void PutPiece(int x, int y, int atTeam) {
+    //指定された座標にPieceを配置し、反転可能なPieceに反転命令を送っていく
+    //xとyは座標、atTeamは置くPieceが白か黒かを指定
+    //事前にVerificationメソッドでおける反対が出てること
+    void PutPiece(int x, int y, int atTeam) {
         GameObject a = GameObject.Instantiate(Piece) as GameObject;//インスタンス化
         a.GetComponent<Piece_move_controller>().x = x;
         a.GetComponent<Piece_move_controller>().y = y;
@@ -151,10 +141,10 @@ public class Selector : MonoBehaviour {
         a.transform.parent = Pieces_parent.transform;
 
         if (attack_team == 0) {
-            _tileData.data[x, y] = 0;
+            game_master.GetComponent<Tile_data>().data[x, y] = 0;
             Debug.Log(x + "," + y + " " + 0);
         } else if (attack_team == 1) {
-            _tileData.data[x, y] = 1;
+            game_master.GetComponent<Tile_data>().data[x, y] = 1;
             Debug.Log(x + "," + y + " " + 1);
         }
 
@@ -167,13 +157,13 @@ public class Selector : MonoBehaviour {
 
         Reversal(x, y);  //反転作業
 
-        _turnController.turn++;
-        switch (_turnController.now_team) {
+        game_master.GetComponent<Turn_Controller>().turn++;
+        switch (game_master.GetComponent<Turn_Controller>().now_team) {
             case 'b':
-                _turnController.now_team = 'w';
+                game_master.GetComponent<Turn_Controller>().now_team = 'w';
                 break;
             case 'w':
-                _turnController.now_team = 'b';
+                game_master.GetComponent<Turn_Controller>().now_team = 'b';
                 break;
         }
 
@@ -182,7 +172,7 @@ public class Selector : MonoBehaviour {
     //指定されたx,y座標にPieceが置けるかどうかを調べる
     public bool Verification(int x, int y) {
         bool result = false;
-        if (_tileData.data[x, y] != -1) {
+        if (game_master.GetComponent<Tile_data>().data[x, y] != -1) {
             goto VerificationEND;   //もうすでに盤面に石が置かれているので判定強制終了
         }
         verification_result = new bool[8] { false, false, false, false, false, false, false, false };    //初期化　のちどれかがtrueになったら配置可能判定がでる
@@ -227,15 +217,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator Up_find(int x, int y) {
-        if (_tileData.data[x, y + 1] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x, y + 1] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[0] = true;  //置ける判定をして終了
                         goto UP_FIND_END;
-                    } else if (_tileData.data[x, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto UP_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -248,15 +238,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator UpRight_find(int x, int y) {
-        if (_tileData.data[x + 1, y + 1] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x + 1, y + 1] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x + i, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[1] = true;  //置ける判定をして終了
                         goto UPRIGHT_FIND_END;
-                    } else if (_tileData.data[x + i, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x + i, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x + i, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto UPRIGHT_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -269,15 +259,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator Right_find(int x, int y) {
-        if (_tileData.data[x + 1, y] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x + 1, y] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x + i, y] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x + i, y] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[2] = true;  //置ける判定をして終了
                         goto RIGHT_FIND_END;
-                    } else if (_tileData.data[x + i, y] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x + i, y] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x + i, y] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x + i, y] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto RIGHT_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -290,15 +280,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator DownRight_find(int x, int y) {
-        if (_tileData.data[x + 1, y - 1] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x + 1, y - 1] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x + i, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[3] = true;  //置ける判定をして終了
                         goto DOWNRIGHT_FIND_END;
-                    } else if (_tileData.data[x + i, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x + i, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x + i, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto DOWNRIGHT_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -311,15 +301,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator Down_find(int x, int y) {
-        if (_tileData.data[x, y - 1] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x, y - 1] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[4] = true;  //置ける判定をして終了
                         goto DOWN_FIND_END;
-                    } else if (_tileData.data[x, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto DOWN_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -332,15 +322,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator DownLeft_find(int x, int y) {
-        if (_tileData.data[x - 1, y - 1] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x - 1, y - 1] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x - i, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[5] = true;  //置ける判定をして終了
                         goto DOWNREFT_FIND_END;
-                    } else if (_tileData.data[x - i, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x - i, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x - i, y - i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto DOWNREFT_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -353,15 +343,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator Left_find(int x, int y) {
-        if (_tileData.data[x - 1, y] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x - 1, y] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x - i, y] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x - i, y] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[6] = true;  //置ける判定をして終了
                         goto LEFT_FIND_END;
-                    } else if (_tileData.data[x - i, y] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x - i, y] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x - i, y] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x - i, y] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto LEFT_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -374,15 +364,15 @@ public class Selector : MonoBehaviour {
     }
 
     IEnumerator UpLeft_find(int x, int y) {
-        if (_tileData.data[x - 1, y + 1] == enemy_team) {    //1マス目が敵石であった時
+        if (game_master.GetComponent<Tile_data>().data[x - 1, y + 1] == enemy_team) {    //1マス目が敵石であった時
             for (int i = 2; i < 9; i++) {
                 try {
-                    if (_tileData.data[x - i, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
+                    if (game_master.GetComponent<Tile_data>().data[x - i, y + i] == attack_team) {   //2マス目以降に自分の駒があった時はtrueにする
                         verification_result[7] = true;  //置ける判定をして終了
                         goto UPLEFT_FIND_END;
-                    } else if (_tileData.data[x - i, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
+                    } else if (game_master.GetComponent<Tile_data>().data[x - i, y + i] == enemy_team) { //2マス目以降に敵石があったときは無視
 
-                    } else if ((_tileData.data[x - i, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
+                    } else if ((game_master.GetComponent<Tile_data>().data[x - i, y + i] == -1)) {  //2マス目以降が何も置かれていない状況であればこの方向には置けない
                         goto UPLEFT_FIND_END;
                     }
                 } catch (System.IndexOutOfRangeException) {
@@ -417,10 +407,10 @@ public class Selector : MonoBehaviour {
     IEnumerator Up_reversal(int x, int y) {
         for(int i = 1; i<9; i++) {
             try {
-                if (_tileData.data[x, y + i] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x, y + i] == enemy_team) {
                     GameObject.Find("_" + (x.ToString()) + ((y + i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x, y + i] = attack_team; //dataも更新
-                } else if (_tileData.data[x, y + i] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x, y + i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x, y + i] != enemy_team) {
                     goto UP_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {
@@ -434,10 +424,10 @@ public class Selector : MonoBehaviour {
     IEnumerator UpRight_reversal(int x, int y) {
         for (int i = 1; i < 9; i++) {
             try {
-                if (_tileData.data[x + i, y + i] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x + i, y + i] == enemy_team) {
                     GameObject.Find("_" + ((x + i).ToString()) + ((y + i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x + i, y + i] = attack_team; //dataも更新
-                } else if (_tileData.data[x + i, y + i] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x + i, y + i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x + i, y + i] != enemy_team) {
                     goto UPRIGHT_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {
@@ -451,10 +441,10 @@ public class Selector : MonoBehaviour {
     IEnumerator Right_reversal(int x, int y) {
         for (int i = 1; i < 9; i++) {
             try {
-                if (_tileData.data[x + i, y] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x + i, y] == enemy_team) {
                     GameObject.Find("_" + ((x + i).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x + i, y] = attack_team; //dataも更新
-                } else if (_tileData.data[x + i, y] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x + i, y] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x + i, y] != enemy_team) {
                     goto RIGHT_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {
@@ -468,10 +458,10 @@ public class Selector : MonoBehaviour {
     IEnumerator DownRight_reversal(int x, int y) {
         for (int i = 1; i < 9; i++) {
             try {
-                if (_tileData.data[x + i, y - i] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x + i, y - i] == enemy_team) {
                     GameObject.Find("_" + ((x + i).ToString()) + ((y - i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x + i, y - i] = attack_team; //dataも更新
-                } else if (_tileData.data[x + i, y - i] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x + i, y - i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x + i, y - i] != enemy_team) {
                     goto DOWNRIGHT_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {
@@ -485,10 +475,10 @@ public class Selector : MonoBehaviour {
     IEnumerator Down_reversal(int x, int y) {
         for (int i = 1; i < 9; i++) {
             try {
-                if (_tileData.data[x, y - i] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x, y - i] == enemy_team) {
                     GameObject.Find("_" + (x.ToString()) + ((y - i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x, y - i] = attack_team; //dataも更新
-                } else if (_tileData.data[x, y - i] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x, y - i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x, y - i] != enemy_team) {
                     goto DOWN_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {
@@ -502,10 +492,10 @@ public class Selector : MonoBehaviour {
     IEnumerator DownLeft_reversal(int x, int y) {
         for (int i = 1; i < 9; i++) {
             try {
-                if (_tileData.data[x - i, y - i] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x - i, y - i] == enemy_team) {
                     GameObject.Find("_" + ((x - i).ToString()) + ((y - i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x - i, y - i] = attack_team; //dataも更新
-                } else if (_tileData.data[x - i, y - i] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x - i, y - i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x - i, y - i] != enemy_team) {
                     goto DOWNLEFT_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {
@@ -519,10 +509,10 @@ public class Selector : MonoBehaviour {
     IEnumerator Left_reversal(int x, int y) {
         for (int i = 1; i < 9; i++) {
             try {
-                if (_tileData.data[x - i, y] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x - i, y] == enemy_team) {
                     GameObject.Find("_" + ((x - i).ToString()) + (y.ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x - i, y] = attack_team; //dataも更新
-                }else if(_tileData.data[x - i, y] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x - i, y] = attack_team; //dataも更新
+                }else if(game_master.GetComponent<Tile_data>().data[x - i, y] != enemy_team) {
                     goto LEFT_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {
@@ -536,10 +526,10 @@ public class Selector : MonoBehaviour {
     IEnumerator UpLeft_reversal(int x, int y) {
         for (int i = 1; i < 9; i++) {
             try {
-                if (_tileData.data[x - i, y + i] == enemy_team) {
+                if (game_master.GetComponent<Tile_data>().data[x - i, y + i] == enemy_team) {
                     GameObject.Find("_" + ((x - i).ToString()) + ((y + i).ToString())).GetComponent<Piece_move_controller>().team = attack_team;  //自分のチームに石を反転
-                    _tileData.data[x - i, y + i] = attack_team; //dataも更新
-                } else if (_tileData.data[x - i, y + i] != enemy_team) {
+                    game_master.GetComponent<Tile_data>().data[x - i, y + i] = attack_team; //dataも更新
+                } else if (game_master.GetComponent<Tile_data>().data[x - i, y + i] != enemy_team) {
                     goto UPLEFT_REVERSAL_END;
                 }
             } catch (System.IndexOutOfRangeException) {

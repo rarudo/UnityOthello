@@ -41,11 +41,10 @@ public class HarukiMK1 : MonoBehaviour
     //自分のターンが始まるまで待機
     IEnumerator WaitTurn()
     {
-            yield return new WaitForSeconds(0.1f);
-       // while (_turnController.now_team != MyTeam)
-       // {
-       //     yield return new WaitForSeconds(1f);
-       // }
+        while (_turnController.now_team != MyTeam)
+        {
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     //評価開始
