@@ -30,7 +30,10 @@ public class Selector : MonoBehaviour {
 
     private int possible_area;  //白と黒チームの両方の置ける場所を1 それ以外は0
 
+    private Tile_data _tileData;
+
     void Start() {
+
         StartCoroutine("Team_Lisner");
         StartCoroutine("Click_Lisner");
         StartCoroutine("Enemy_Lisner");
@@ -71,6 +74,15 @@ public class Selector : MonoBehaviour {
         }
     }
 
+    public bool IsEnemyTurn()
+    {
+        if (enemy_team == 1)
+        {
+            return true;
+        }
+        return false;
+    }
+
     IEnumerator Team_Lisner() {
         while (true) {
             switch (game_master.GetComponent<Turn_Controller>().now_team) {
@@ -94,7 +106,8 @@ public class Selector : MonoBehaviour {
             hit = new RaycastHit();
             if (Input.GetMouseButtonDown(0) && obj.tag == "Tile") {
                 select_obj = obj;
-                if (select_obj.GetComponent<Renderer>().material.color == possible_color) {
+                if (select_obj.GetComponent<Renderer>().material.color == possible_color)
+                {
                     //配置可能範囲をクリックされたときにPieceを置く処理をする
                     PutPiece(int.Parse(select_obj.name[1].ToString()), int.Parse(select_obj.name[0].ToString()), attack_team);
                 }
@@ -116,6 +129,7 @@ public class Selector : MonoBehaviour {
 
     //指定された座標にPieceを配置し、反転可能なPieceに反転命令を送っていく
     //xとyは座標、atTeamは置くPieceが白か黒かを指定
+    //事前にVerificationメソッドでおける反対が出てること
     void PutPiece(int x, int y, int atTeam) {
         GameObject a = GameObject.Instantiate(Piece) as GameObject;//インスタンス化
         a.GetComponent<Piece_move_controller>().x = x;
@@ -153,7 +167,7 @@ public class Selector : MonoBehaviour {
     }
 
     //指定されたx,y座標にPieceが置けるかどうかを調べる
-    bool Verification(int x, int y) {
+    public bool Verification(int x, int y) {
         bool result = false;
         if (game_master.GetComponent<Tile_data>().data[x, y] != -1) {
             goto VerificationEND;   //もうすでに盤面に石が置かれているので判定強制終了

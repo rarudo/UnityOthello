@@ -23,6 +23,7 @@ public class Turn_Controller : MonoBehaviour {
     public Text result_text;
     public GameObject restart_button;
 
+
     void Start() {
         StartCoroutine("Lisner");
         StartCoroutine("End_Lisner");
